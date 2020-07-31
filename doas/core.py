@@ -63,36 +63,36 @@ def process_export(zip_path, output_path):
         with open(json_path, 'r') as f:
             journal_obj = json.load(f)
 
-        # Process all entries
-        for entry in journal_obj["entries"]:
-            # Get UUID for eventual databasing
-            uuid = entry["uuid"]
+    # Process all entries
+    for entry in journal_obj["entries"]:
+        # Get UUID for eventual databasing
+        uuid = entry["uuid"]
 
-            # Process date
-            date_str = entry["creationDate"]
-            if date_str[-1] != 'Z':
-                raise ValueError("Creation time must be UTC.")
-            date_str = date_str[:-1]
-            tz = pytz.timezone(entry["timeZone"])
-            dt = pytz.utc.localize(datetime.fromisoformat(date_str)).astimezone(tz)
+        # Process date
+        date_str = entry["creationDate"]
+        if date_str[-1] != 'Z':
+            raise ValueError("Creation time must be UTC.")
+        date_str = date_str[:-1]
+        tz = pytz.timezone(entry["timeZone"])
+        dt = pytz.utc.localize(datetime.fromisoformat(date_str)).astimezone(tz)
 
-            # Add date header to output
-            output_text += dt.strftime("%b %-d, %Y %-I:%M %p (%Z)\n")
-            output_text += "=============================\n"
+        # Add date header to output
+        output_text += dt.strftime("%b %-d, %Y %-I:%M %p (%Z)\n")
+        output_text += "=============================\n"
 
-            # Process audio transcriptions
-            transcriptions = []
-            for a in entry["audios"]:
-                t = a.get("transcription", "").strip()
-                if t:
-                    transcriptions.append(t)
-            if not transcriptions:
-                continue
-            full_text, summary = process_transcriptions(transcriptions)
+        # Process audio transcriptions
+        transcriptions = []
+        for a in entry["audios"]:
+            t = a.get("transcription", "").strip()
+            if t:
+                transcriptions.append(t)
+        if not transcriptions:
+            continue
+        full_text, summary = process_transcriptions(transcriptions)
 
-            # Add transcription stuff to output
-            output_text += "- Summary: " + summary + "\n"
-            output_text += "- Transcription: " + full_text + "\n\n"
+        # Add transcription stuff to output
+        output_text += "- Summary: " + summary + "\n"
+        output_text += "- Transcription: " + full_text + "\n\n"
 
     # Write output file
     with open(output_path, 'w') as f:
