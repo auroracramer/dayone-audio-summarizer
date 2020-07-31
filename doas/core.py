@@ -76,19 +76,21 @@ def process_export(zip_path, output_path):
         tz = pytz.timezone(entry["timeZone"])
         dt = pytz.utc.localize(datetime.fromisoformat(date_str)).astimezone(tz)
 
-        # Add date header to output
-        output_text += dt.strftime("%b %-d, %Y %-I:%M %p (%Z)\n")
-        output_text += "=============================\n"
-
         # Process audio transcriptions
         transcriptions = []
         for a in entry["audios"]:
             t = a.get("transcription", "").strip()
             if t:
                 transcriptions.append(t)
+        # If there are no transcriptions, skip this entry
         if not transcriptions:
             continue
+        # Get punctuated text and summary
         full_text, summary = process_transcriptions(transcriptions)
+
+        # Add date header to output
+        output_text += dt.strftime("%b %-d, %Y %-I:%M %p (%Z)\n")
+        output_text += "=============================\n"
 
         # Add transcription stuff to output
         output_text += "- Summary: " + summary + "\n"
