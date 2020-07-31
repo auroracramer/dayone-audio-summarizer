@@ -1,10 +1,10 @@
 import os
-import imp
 import gdown
+from importlib.machinery import SourceFileLoader
 from setuptools import setup, find_packages
 
-version = imp.load_source('doas.version', os.path.join('doas', 'version.py'))
-core = imp.load_source('doas.core', os.path.join('doas', 'core.py'))
+version = SourceFileLoader('doas.version', os.path.join('doas', 'version.py')).load_module()
+core = SourceFileLoader('doas.core', os.path.join('doas', 'core.py')).load_module()
 
 print("Downloading punctuator model.")
 punctuator_model_url = 'https://drive.google.com/uc?id=0B7BsN5f2F1fZd1Q0aXlrUDhDbnM'
@@ -21,7 +21,6 @@ setup(
     entry_points={
         'console_scripts': ['doas=doas.cli:main'],
     },
-    license='MIT',
     install_requires=[
         'gensim==3.8.3',
         'punctuator==0.9.5',
